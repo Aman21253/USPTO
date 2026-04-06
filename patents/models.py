@@ -4,6 +4,7 @@ class PatentApplication(models.Model):
     application_number = models.CharField(max_length=50, unique=True)
     customer_number = models.CharField(max_length=50)
     title = models.CharField(max_length=255, blank=True, null=True)
+    priority = models.BooleanField(default=False)
 
     def __str__(self):
         return self.application_number

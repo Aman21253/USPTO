@@ -1,7 +1,15 @@
+from users.models import SponsoredCustomer
 from patents.models import PatentApplication
 
-
 class Mapper:
+
+    def verify_customer(self, customer_number):
+        try:
+            customer = SponsoredCustomer.objects.get(customer_number=customer_number, active=True)
+            return True
+        except SponsoredCustomer.DoesNotExist:
+            print(f"❌ Customer {customer_number} not verified. Skipping.")
+            return False
 
     def find_application(self, parsed_data):
         app_no = parsed_data.get("application_number")
