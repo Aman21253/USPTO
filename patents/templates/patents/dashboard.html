@@ -1,0 +1,78 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Patent Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+
+<div class="flex min-h-screen">
+  <!-- Sidebar -->
+  <aside class="w-64 bg-white shadow-lg">
+    <div class="p-6 text-xl font-bold">📊 USPTO Dashboard</div>
+    <nav class="px-4 space-y-2">
+      <a href="#" class="block p-2 rounded-lg bg-gray-100">Dashboard</a>
+      <a href="#" class="block p-2 rounded-lg hover:bg-gray-100">Applications</a>
+      <a href="#" class="block p-2 rounded-lg hover:bg-gray-100">Documents</a>
+    </nav>
+  </aside>
+
+  <!-- Main -->
+  <main class="flex-1 p-6">
+
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-semibold">Patent Applications</h1>
+      <button class="bg-blue-600 text-white px-4 py-2 rounded-lg shadow">
+        Refresh
+      </button>
+    </div>
+
+    <!-- Table Card -->
+    <div class="bg-white rounded-2xl shadow p-4">
+      <table class="w-full text-left">
+        <thead>
+          <tr class="border-b">
+            <th class="p-3">Application No</th>
+            <th class="p-3">Documents</th>
+            <th class="p-3">Last Updated</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for app in applications %}
+          <tr class="border-b hover:bg-gray-50">
+            <td class="p-3 font-medium">{{ app.application_number }}</td>
+            <td class="p-3">
+              <div class="space-y-1">
+                {% for doc in app.patentdocument_set.all %}
+                  <div class="text-sm bg-gray-100 px-2 py-1 rounded">
+                    {{ doc.document_code }} - {{ doc.mailroom_date }}
+                  </div>
+                {% empty %}
+                  <span class="text-gray-400 text-sm">No documents</span>
+                {% endfor %}
+              </div>
+            </td>
+            <td class="p-3 text-sm text-gray-500">
+              {{ app.updated_at|default:"-" }}
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="3" class="p-6 text-center text-gray-400">
+              No applications found
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  </main>
+</div>
+
+</body>
+</html>
