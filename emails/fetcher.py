@@ -12,14 +12,28 @@ class EmailFetcher:
         mail.login(self.user, self.password)
         mail.select("inbox")
 
-        status, messages = mail.search(None, "UNSEEN")
+        status, data = mail.search(
+            None,
+            "UNSEEN",
+            "FROM",
+            '"noreply@uspto.gov"',
+            "SUBJECT",
+            '"USPTO: Patent Electronic System - Correspondence Notification for Customer Number"',
+        )
+
         emails = []
+        if status != "OK" or not data or not data[0]:
+            mail.logout()
+            return emails
 
-        for num in messages[0].split():
-            status, data = mail.fetch(num, "(RFC822)")
-            msg = email.message_from_bytes(data[0][1])
+        for num in data[0].split():
+            status, fetch_data = mail.fetch(num, "(RFC822)")
+            if status != "OK" or not fetch_data or not fetch_data[0]:
+                continue
+
+            msg = email.message_from_bytes(fetch_data[0][1])
             emails.append(msg)
-            # Mark as seen
-            mail.store(num, '+FLAGS', '\\Seen')
+            mail.store(num, "+FLAGS", "\\Seen")
 
+        mail.logout()
         return emails

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Applications</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100">
+
+<div class="max-w-6xl mx-auto mt-10">
+
+    <h1 class="text-3xl font-bold mb-6">📄 Applications</h1>
+
+    <table class="min-w-full bg-white rounded-2xl shadow overflow-hidden">
+        <thead class="bg-gray-200 text-gray-600">
+            <tr>
+                <th class="py-3 px-4 text-left">ID</th>
+                <th class="py-3 px-4 text-left">Application No</th>
+                <th class="py-3 px-4 text-left">Customer</th>
+                <th class="py-3 px-4 text-left">Priority</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for app in applications %}
+            <tr class="border-b hover:bg-gray-50">
+
+                <td class="py-3 px-4">{{ app.id }}</td>
+                <td class="py-3 px-4 font-semibold">
+                    {{ app.application_number }}
+                </td>
+                <td class="py-3 px-4">{{ app.customer_number }}</td>
+
+                <td class="py-3 px-4">
+                    {% if app.priority %}
+                        <span class="bg-yellow-400 text-black px-3 py-1 rounded-full text-sm">
+                            ⚡ Priority
+                        </span>
+                    {% else %}
+                        <span class="bg-green-200 text-green-800 px-3 py-1 rounded-full text-sm">
+                            Normal
+                        </span>
+                    {% endif %}
+                </td>
+
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="mt-6">
+        <a href="{% url 'dashboard' %}" 
+           class="text-blue-500 hover:underline">
+            ← Back to Dashboard
+        </a>
+    </div>
+
+</div>
+
+</body>
+</html>
