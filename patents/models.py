@@ -4,11 +4,25 @@ class PatentApplication(models.Model):
     application_number = models.CharField(max_length=50, unique=True)
     customer_number = models.CharField(max_length=50)
     title = models.CharField(max_length=255, blank=True, null=True)
+
     priority = models.BooleanField(default=False)
+
+    # 🔥 NEW FIELDS
+    sync_status = models.CharField(
+        max_length=20,
+        choices=[
+            ('pending', 'Pending'),
+            ('running', 'Running'),
+            ('success', 'Success'),
+            ('failed', 'Failed'),
+        ],
+        default='pending'
+    )
+
+    last_synced_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return self.application_number
-
 
 class PatentDocument(models.Model):
     application = models.ForeignKey(PatentApplication, on_delete=models.CASCADE)

@@ -16,7 +16,7 @@ def dashboard(request):
     total_count = priority_count + normal_count
 
     # 🔥 Recent activity (last 5)
-    recent_apps = PatentApplication.objects.order_by('-id')[:5]
+    recent_apps = PatentApplication.objects.order_by('-last_synced_at')[:5]
 
     # 🔥 Last sync time
     last_sync = None

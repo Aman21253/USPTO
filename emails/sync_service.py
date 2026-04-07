@@ -3,6 +3,7 @@ import time
 from django.core.mail import send_mail
 from django.conf import settings
 from patents.models import PatentApplication
+from django.utils.timezone import now
 
 logger = logging.getLogger(__name__)
 
@@ -29,65 +30,37 @@ class SyncService:
             )
 
     def sync_application(self, application: PatentApplication):
-        """
-        Sync a single patent application with retries and alert emails.
-        """
-        attempt = 0
-
-        while attempt <= self.MAX_RETRIES:
-            try:
-                logger.info(
-                    f"🔥 Sync triggered for {application.application_number} (attempt {attempt + 1})",
-                    extra={
-                        "application_number": application.application_number,
-                        "customer_number": getattr(application, "customer_number", "N/A"),
-                        "email_subject": "N/A"
-                    }
-                )
-
-                # TODO: Insert actual sync logic here
-                # e.g., call USPTO API or process documents
-
-                # Reset priority if it was set
-                if application.priority:
-                    application.priority = False
-                    application.save(update_fields=["priority"])
-                    logger.info(
-                        f"✅ Priority reset for {application.application_number}",
-                        extra={
-                            "application_number": application.application_number,
-                            "customer_number": getattr(application, "customer_number", "N/A"),
-                            "email_subject": "N/A"
-                        }
-                    )
-                return  # Success, exit loop
-
-            except Exception as e:
-                attempt += 1
-                logger.error(
-                    f"❌ Error syncing {application.application_number}: {e} (attempt {attempt})",
-                    extra={
-                        "application_number": getattr(application, "application_number", "N/A"),
-                        "customer_number": getattr(application, "customer_number", "N/A"),
-                        "email_subject": "N/A"
-                    }
-                )
-
-                if attempt > self.MAX_RETRIES:
-                    self.send_failure_alert(application, e)
-                    break
-
-                # Exponential backoff before retrying
-                delay = self.BASE_DELAY * (2 ** (attempt - 1))
-                logger.info(
-                    f"⏳ Retrying {application.application_number} in {delay} seconds",
-                    extra={
-                        "application_number": getattr(application, "application_number", "N/A"),
-                        "customer_number": getattr(application, "customer_number", "N/A"),
-                        "email_subject": "N/A"
-                    }
-                )
-                time.sleep(delay)
+        try:
+            # 🟡 RUNNING
+            application.sync_status = "running"
+            application.save(update_fields=["sync_status"])
+    
+            logger.info(f"🚀 Sync started for {application.application_number}")
+    
+            # 🔥 Your actual sync logic here
+            # (simulate for now)
+            import time
+            time.sleep(1)
+    
+            # 🟢 SUCCESS
+            application.sync_status = "success"
+            application.last_synced_at = now()
+    
+            if application.priority:
+                application.priority = False
+    
+            application.save(update_fields=["sync_status", "last_synced_at", "priority"])
+    
+            logger.info(f"✅ Sync success for {application.application_number}")
+    
+        except Exception as e:
+            # 🔴 FAILED
+            application.sync_status = "failed"
+            application.save(update_fields=["sync_status"])
+    
+            logger.error(f"❌ Sync failed for {application.application_number}: {e}")
+            raise e
+            
 
     def daily_sync(self):
         """
